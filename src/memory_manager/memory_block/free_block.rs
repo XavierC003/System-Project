@@ -1,4 +1,7 @@
 // you'll probably want to expand this...
+use crate::memory_manager::memory_block::MemoryBlock;
+
+// FreeBlock represents a block of free memory in the memory manager.
 pub struct FreeBlock {
     start: usize,
     size: usize,
@@ -25,5 +28,14 @@ impl FreeBlock {
             None  // Return None if they are not adjacent
         }
     }
-    
+
+impl MemoryBlock for FreeBlock {
+    fn get_start(&self) -> usize {
+        self.start
+    }
+
+    fn get_size(&self) -> usize {
+        self.size
+    }
+  }
 }
