@@ -54,5 +54,57 @@ impl MemoryManager {
          }
         None // Not enough memory
         }
+        
     
+    // Free blocks are merged after allocation
+    pub fn merge_free_blocks(&mut self) {
+        self.free_blocks.sort_by_key(|b| b.start); // Sort free blocks by start address
+    
+        let mut merged = Vec::new();
+        let mut prev: Option<FreeBlock> = None;
+
+        for block in &self.free_blocks.drain[..] {
+            if let Some(p) = prev {
+                if let Some(merged_block) = p.merge(block) {
+                    prev = Some(merged_block); // Merge with the previous block
+                } else {
+                    merged.push(p); // Add the previous block to the merged list
+                    prev = Some(block.clone()); // Start a new block
+                }
+            }
+        }
+        if let Some(p) = prev {
+            merged.push(p); // Add the last block to the merged list
+        }
+        self.free_blocks = merged; // Update the free blocks list
+    }
+    
+    // Delete
+    pub fn delete(&mut self, id: &str) -> bool {
+        if let Some(index) = self.allocated_blocks.iter().position(|b| b.id == id) {
+            let block = self.allocated_blocks.remove(index); // Remove the allocated block
+
+            self.free_blocks.push(FreeBlock::new(
+                block.start,
+                block.size,
+            )); // Add the freed block to the free list
+
+            // Merge adjacent free blocks
+            self.merge_free_blocks();
+            return true;
+        }
+        false
+    }
+    // Dump
+    pub fn dump(&self) {
+        println!("Allocated Blocks:");
+        for block in &self.allocated_blocks {
+            println!("ID: {}, Start: {}, Size: {}, Used: {}", block.id, block.start, block.size, block.used_size);
+        }
+
+        println!("Free Blocks:");
+        for block in &self.free_blocks {
+            println!("Start: {}, Size: {}", block.start, block.size);
+        }
+    }
 }
