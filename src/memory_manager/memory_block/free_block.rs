@@ -1,41 +1,35 @@
-// you'll probably want to expand this...
-use crate::memory_manager::memory_block::MemoryBlock;
+// This struct represents a free block of memory (unused memory space).
+use super::MemoryBlock;
 
-// FreeBlock represents a block of free memory in the memory manager.
+#[derive(Debug, Clone)]
 pub struct FreeBlock {
-    start: usize,
-    size: usize,
+    pub start: usize, // The starting address (index) of the free block in memory
+    pub size: usize,  // The total size of the free block
 }
 
 impl FreeBlock {
+    // Creates a new FreeBlock
     pub fn new(start: usize, size: usize) -> Self {
         Self { start, size }
     }
 
-    // Check if blocks are adjacent
-    pub fn is_adjacent(&self, other: &FreeBlock) -> bool {
-        self.start + self.size == other.start || other.start + other.size == self.start
-    }
-
-    // Merge two adjacent blocks
+    // Merges two free blocks if they are adjacent
+    // Returns Some(FreeBlock) if the blocks were merged, None otherwise
     pub fn merge(&self, other: &FreeBlock) -> Option<FreeBlock> {
-        if self.is_adjacent(other) {
-            let new_start = self.start.min(other.start);
-            let new_size = self.size + other.size;
-            Some(FreeBlock::new(new_start, new_size))
-        }
-        else {
-            None  // Return None if they are not adjacent
+        if self.start + self.size == other.start {
+            Some(FreeBlock::new(self.start, self.size + other.size))
+        } else {
+            None
         }
     }
-
-impl MemoryBlock for FreeBlock {
-    fn get_start(&self) -> usize {
-        self.start
-    }
-
-    fn get_size(&self) -> usize {
-        self.size
-    }
-  }
 }
+    // Implementing the MemoryBlock trait for FreeBlock
+    impl MemoryBlock for FreeBlock {
+        fn get_start(&self) -> usize {
+            self.start
+        }
+    
+        fn get_size(&self) -> usize {
+            self.size
+        }
+    }
