@@ -11,4 +11,10 @@ impl Command {
             parameters,
         }
     }
+    pub fn function(&self) -> &str {
+        &self.function
+    }
+    pub fn parameters(&self) -> &Vec<String> {
+        &self.parameters
+    }
 }

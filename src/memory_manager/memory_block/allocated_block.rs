@@ -15,11 +15,11 @@ pub(crate) trait MemoryBlock {
 
 // Implementing the MemoryBlock trait for AllocatedBlock
 impl MemoryBlock for AllocatedBlock {
-    fn start_address(&self) -> usize {
+    fn get_start(&self) -> usize {
         self.start
     }
 
-    fn block_size(&self) -> usize {
+    fn get_size(&self) -> usize {
         self.size
     }
 }
@@ -36,11 +36,12 @@ impl AllocatedBlock {
     }
 
     // This could be a helpful utility function to update used_size
-    pub fn update_used_size(&mut self, new_used_size: usize) {
+    pub fn update_used_size(&mut self, new_used_size: usize) -> Result<(), String> {
         if new_used_size <= self.size {
             self.used_size = new_used_size;
+            Ok(())
         } else {
-            panic!("new_used_size cannot be larger than the total size of the block");
+            Err("new_used_size cannot be larger than the total size of the block".to_string())
         }
     }
 }
