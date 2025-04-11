@@ -4,7 +4,7 @@ pub mod command;
 
 #[derive(Debug)]
 pub struct FileParser {
-    commands: Vec<command::Command>,
+   pub  commands: Vec<command::Command>,
 }
 
 impl FileParser {

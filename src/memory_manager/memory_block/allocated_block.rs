@@ -1,4 +1,6 @@
 // This struct represents an allocated block of memory in the manager.
+use super::MemoryBlock;
+
 #[derive(Debug, Clone)]
 pub struct AllocatedBlock {
     pub start: usize,       // The starting address (index) of the allocated block in memory
@@ -8,10 +10,7 @@ pub struct AllocatedBlock {
 }
 
 // Trait for memory blocks
-pub(crate) trait MemoryBlock {
-    fn get_start(&self) -> usize;  // Renamed for clarity
-    fn get_size(&self) -> usize;     // Renamed for clarity
-}
+
 
 // Implementing the MemoryBlock trait for AllocatedBlock
 impl MemoryBlock for AllocatedBlock {
@@ -31,7 +30,7 @@ impl AllocatedBlock {
             start,
             size,
             id,
-            used_size,
+            used_size
         }
     }
 
