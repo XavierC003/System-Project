@@ -19,6 +19,15 @@ pub struct MemoryManager {
 }
 
 impl MemoryManager {
+        /// Creates a new `MemoryManager` with the specified memory size.
+    ///
+    /// # Arguments
+    ///
+    /// * `size` - The total size of memory to manage.
+    ///
+    /// # Returns
+    ///
+    /// A new `MemoryManager` instance with one free block covering the entire memory.
     pub fn new(size: usize) -> Self {
         Self {
             data: vec![0; size],
