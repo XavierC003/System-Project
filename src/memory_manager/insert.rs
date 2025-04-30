@@ -1,6 +1,22 @@
 use super::{AllocatedBlock, FreeBlock, MemoryManager};
 
 impl MemoryManager {
+        /// Inserts a new block of memory into the memory manager.
+    ///
+    /// This function finds the best-fit free block that can hold the requested size,
+    /// allocates a new `AllocatedBlock`, and copies the provided data into memory.
+    ///
+    /// # Arguments
+    ///
+    /// * `size` - The requested size for the allocation. It will be rounded up
+    ///            to the next power of two for alignment and efficiency.
+    /// * `data` - A byte slice containing the data to be copied into the allocated block.
+    ///
+    /// # Returns
+    ///
+    /// * `Some(String)` - The unique ID of the newly allocated block, if allocation succeeds.
+    /// * `None` - If no suitable free block is found or the provided data exceeds the required size.
+    ///
     pub fn insert(&mut self, size: usize, data: &[u8]) -> Option<String> {
         let required_size = size.next_power_of_two();
         let data_size = data.len();
