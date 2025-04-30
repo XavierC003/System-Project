@@ -9,7 +9,6 @@ pub struct AllocatedBlock {
     pub used_size: usize,   // How much of the block is actually being used (data size)
 }
 
-// Trait for memory blocks
 
 
 // Implementing the MemoryBlock trait for AllocatedBlock

@@ -1,9 +1,47 @@
-use super::MemoryManager;
+use super::{memory_block::MemoryBlock, MemoryManager};
 
 pub fn dump(manager: &MemoryManager) -> String {
+    let mut all_blocks: Vec<(usize, usize, String, Option<String>)> = Vec::new();
+
+    // Add allocated blocks
+    for block in &manager.allocated_handles {
+        all_blocks.push((
+            block.get_start(),
+            block.get_size(),
+            "Allocated".to_string(),
+            Some(block.id.clone()), // Now an Option<String>
+        ));
+    }
+
+    // Add free blocks
+    for block in &manager.free_handles {
+        all_blocks.push((
+            block.start,
+            block.size,
+            "Free".to_string(),
+            None, // No ID for free blocks
+        ));
+    }
+
+    // Sort the blocks by start address
+    all_blocks.sort_by_key(|&(start, _, _, _)| start);
+
+    // Print block info
     let mut output = String::new();
-    output.push_str(&format!("Memory Data: {:?}\n", manager.data));
-    output.push_str(&format!("Free Handles: {:?}\n", manager.free_handles));
-    output.push_str(&format!("Allocated Handles: {:?}\n", manager.allocated_handles));
+    for (start, size, status, id) in all_blocks {
+        let end = start + size - 1;
+        let line = match id {
+            Some(id) => format!(
+                "Start: {:04X}, End: {:04X}, Size: {}, Status: {}, ID: {}\n",
+                start, end, size, status, id
+            ),
+            None => format!(
+                "Start: {:04X}, End: {:04X}, Size: {}, Status: {}\n",
+                start, end, size, status
+            ),
+        };
+        output.push_str(&line);
+    }
+
     output
 }
