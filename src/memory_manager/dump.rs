@@ -1,6 +1,22 @@
 use super::{memory_block::MemoryBlock, MemoryManager};
 
+
+    /// Generates a formatted dump of the memory state managed by the `MemoryManager`.
+///
+/// This includes both allocated and free memory blocks, showing their start and end
+/// addresses, sizes, statuses, and IDs (if applicable). Allocated blocks will include
+/// their unique identifier, while free blocks will not.
+///
+/// # Arguments
+///
+/// * `manager` - A reference to the `MemoryManager` whose memory state will be displayed.
+///
+/// # Returns
+///
+/// * A `String` containing the formatted memory dump, with one line per memory block.
+///
 pub fn dump(manager: &MemoryManager) -> String {
+
     let mut all_blocks: Vec<(usize, usize, String, Option<String>)> = Vec::new();
 
     // Add allocated blocks
