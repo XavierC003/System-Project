@@ -1,6 +1,5 @@
 use super::{memory_block::MemoryBlock, MemoryManager};
 
-
     /// Generates a formatted dump of the memory state managed by the `MemoryManager`.
 ///
 /// This includes both allocated and free memory blocks, showing their start and end
@@ -16,8 +15,7 @@ use super::{memory_block::MemoryBlock, MemoryManager};
 /// * A `String` containing the formatted memory dump, with one line per memory block.
 ///
 pub fn dump(manager: &MemoryManager) -> String {
-
-    let mut all_blocks: Vec<(usize, usize, String, Option<String>)> = Vec::new();
+    let mut all_blocks: Vec<(usize, usize, String, Option<usize>)> = Vec::new();
 
     // Add allocated blocks
     for block in &manager.allocated_handles {
@@ -25,7 +23,7 @@ pub fn dump(manager: &MemoryManager) -> String {
             block.get_start(),
             block.get_size(),
             "Allocated".to_string(),
-            Some(block.id.clone()), // Now an Option<String>
+            Some(block.id),
         ));
     }
 
@@ -35,14 +33,14 @@ pub fn dump(manager: &MemoryManager) -> String {
             block.start,
             block.size,
             "Free".to_string(),
-            None, // No ID for free blocks
+            None,
         ));
     }
 
-    // Sort the blocks by start address
+    // Sort blocks by start address
     all_blocks.sort_by_key(|&(start, _, _, _)| start);
 
-    // Print block info
+    // Build output string
     let mut output = String::new();
     for (start, size, status, id) in all_blocks {
         let end = start + size - 1;

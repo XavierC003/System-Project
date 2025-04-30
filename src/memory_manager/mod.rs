@@ -42,7 +42,7 @@ impl MemoryManager {
     }
 
     // Find method that retrieves a block by ID
-    pub fn find<'a>(&'a self, id: &'a str) -> Option<&'a AllocatedBlock> {
+    pub fn find<'a>(&'a self, id: usize) -> Option<&'a AllocatedBlock> {
         find::find_block(&self.allocated_handles, id)
     }
 
@@ -61,7 +61,7 @@ impl MemoryManager {
         }
     }
 
-    pub fn get_block(&self, id: &str) -> Option<&AllocatedBlock> {
+    pub fn get_block(&self, id: usize) -> Option<&AllocatedBlock> {
         self.allocated_handles.iter().find(|&block| block.id == id)
     }
 

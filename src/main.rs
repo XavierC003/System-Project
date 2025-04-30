@@ -46,52 +46,53 @@ fn main() {
                                 .collect();
                             if let Some(id) = manager.insert(size, &data) {
                                 println!("Inserted block with ID: {}", id);
-                                // Assuming you have a function to get a block by ID
-                                if let Some(block) = manager.get_block(&id) {
+                                if let Some(block) = manager.get_block(id) {
                                     print_block_info(block);
                                 }
                             } else {
                                 println!("Failed to insert block.");
                             }
                         }
-                        Err(_) => {
-                            println!("Invalid size parameter for insert command.");
-                        }
+                        Err(_) => println!("Invalid size parameter for insert command."),
                     }
                 } else {
                     println!("Missing size parameter for insert command.");
                 }
             }
+
             "delete" => {
-                if let Some(id) = command.parameters().get(0) {
-                    match id.parse::<usize>() {
-                        Ok(parsed_id) => {
-                            if manager.delete(&id) {
-                                println!("Deleted block with ID: {}", parsed_id);
+                if let Some(id_str) = command.parameters().get(0) {
+                    match id_str.parse::<usize>() {
+                        Ok(id) => {
+                            if manager.delete(id) {
+                                println!("Deleted block with ID: {}", id);
                             } else {
-                                println!("Block ID not found: {}", parsed_id);
+                                println!("Block ID not found: {}", id);
                             }
                         }
-                        Err(_) => {
-                            println!("Invalid block ID for delete command.");
-                        }
+                        Err(_) => println!("Invalid block ID for delete command."),
                     }
                 } else {
                     println!("Missing block ID for delete command.");
                 }
             }
+
             "read" => {
                 if let (Some(start_str), Some(len_str)) = (command.parameters().get(0), command.parameters().get(1)) {
-                    let start = start_str.parse::<usize>().unwrap_or(0);
-                    let len = len_str.parse::<usize>().unwrap_or(1);
-                    match manager.read_range(start, len) {
-                        Some(bytes) => println!("Bytes from {}: {:?}", start, bytes),
-                        None => println!("Invalid index: {} to {}", start, start + len),
+                    match (start_str.parse::<usize>(), len_str.parse::<usize>()) {
+                        (Ok(start), Ok(len)) => {
+                            match manager.read_range(start, len) {
+                                Some(bytes) => println!("Bytes from {}: {:?}", start, bytes),
+                                None => println!("Invalid index range: {} to {}", start, start + len),
+                            }
+                        }
+                        _ => println!("Invalid parameters for read command."),
                     }
                 } else {
                     println!("Missing parameters for read command.");
                 }
             }
+
             _ => {
                 println!("Unknown command: {}", command.function());
             }

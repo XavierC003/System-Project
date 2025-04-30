@@ -5,7 +5,7 @@ use super::MemoryBlock;
 pub struct AllocatedBlock {
     pub start: usize,       // The starting address (index) of the allocated block in memory
     pub size: usize,        // The total size of the block
-    pub id: String,         // Unique identifier for the block
+    pub id: usize,         // Unique identifier for the block
     pub used_size: usize,   // How much of the block is actually being used (data size)
 }
 
@@ -24,7 +24,7 @@ impl MemoryBlock for AllocatedBlock {
 
 impl AllocatedBlock {
     // Creates a new AllocatedBlock
-    pub fn new(start: usize, size: usize, id: String, used_size: usize) -> Self {
+    pub fn new(start: usize, size: usize, id: usize, used_size: usize) -> Self {
         Self {
             start,
             size,

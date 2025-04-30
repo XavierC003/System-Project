@@ -1,9 +1,9 @@
 use crate::memory_manager::memory_block::FreeBlock;  // Keep only the necessary import
 use super::MemoryManager;
 
-pub fn update(manager: &mut MemoryManager, id: &str, new_data: &[u8]) {
+pub fn update(manager: &mut MemoryManager, id: usize, new_data: &[u8]) {
     if let Some(index) = manager.allocated_handles.iter().position(|b| b.id == id) {
-        // Remove the block from the allocated handles list
+        // Get the block from the allocated handles list
         let mut block = manager.allocated_handles.remove(index);
 
         // Check if the new data fits into the current block
@@ -11,7 +11,9 @@ pub fn update(manager: &mut MemoryManager, id: &str, new_data: &[u8]) {
             // Write the new data to the block's memory space
             manager.write_bytes(block.start, new_data);
             block.used_size = new_data.len(); // Update the used size of the block
-            manager.allocated_handles.push(block); // Push the updated block back
+
+            // Insert the updated block back in place at the same index
+            manager.allocated_handles.insert(index, block); 
         } else {
             // Free the old block since it can't accommodate the new data
             manager.free_handles.push(FreeBlock::new(block.start, block.size));
@@ -23,7 +25,7 @@ pub fn update(manager: &mut MemoryManager, id: &str, new_data: &[u8]) {
                     .iter_mut()
                     .find(|b| b.id == new_id)
                     .unwrap();
-                new_block.id = id.to_string(); // Set the same ID as the old block
+                new_block.id = id; // Set the same ID as the old block
             } else {
                 // If insert fails, it means there wasn't enough space
                 println!("Update failed: not enough memory for new data.");

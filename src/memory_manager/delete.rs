@@ -20,7 +20,7 @@ impl MemoryManager {
     /// When a block is deleted, it is removed from the `allocated_handles` list and
     /// converted into a `FreeBlock`, which is then added to the `free_handles` list.
     ///
-    pub fn delete(&mut self, id: &str) -> bool {
+    pub fn delete(&mut self, id: usize) -> bool {
         if let Some(index) = self.allocated_handles.iter().position(|block| block.id == id) {
             let block = self.allocated_handles.remove(index);
             
