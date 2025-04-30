@@ -4,6 +4,22 @@ use crate::memory_manager::memory_block::MemoryBlock;
 
 
 impl MemoryManager {
+        /// Deletes an allocated memory block by its unique identifier.
+    ///
+    /// # Arguments
+    ///
+    /// * `id` - A string slice that holds the ID of the block to be deleted.
+    ///
+    /// # Returns
+    ///
+    /// * `true` if the block with the specified ID was found and deleted successfully.
+    /// * `false` if no block with the given ID exists.
+    ///
+    /// # Behavior
+    ///
+    /// When a block is deleted, it is removed from the `allocated_handles` list and
+    /// converted into a `FreeBlock`, which is then added to the `free_handles` list.
+    ///
     pub fn delete(&mut self, id: &str) -> bool {
         if let Some(index) = self.allocated_handles.iter().position(|block| block.id == id) {
             let block = self.allocated_handles.remove(index);
