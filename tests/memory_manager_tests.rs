@@ -1,4 +1,4 @@
-use rust_template::memory_manager::{dump, update, MemoryManager};
+use rust_template::memory_manager::MemoryManager;
 
 
 
@@ -55,7 +55,7 @@ fn test_dump_memory_state() {
     let mut manager = MemoryManager::new(100);
     manager.insert(20, &[1, 2, 3]);
 
-    let dump_output = dump::dump(&manager);
+    let dump_output = manager.dump();
     println!("Captured dump output: {}", dump_output);
 
     assert!(dump_output.contains("Allocated"));
@@ -68,7 +68,7 @@ fn test_update_block() {
     let block_id = manager.insert(10, &[1, 2, 3, 4, 5]).unwrap();
 
     // Update the block
-    update::update(&mut manager, block_id, &[1, 2, 9, 9, 5]);
+    MemoryManager::update( &mut manager, block_id, &[1, 2, 9, 9, 5]);
 
     let block = manager.read(block_id).expect("Block should exist");
     let updated_data = manager.read_range(block.start, block.used_size).unwrap();

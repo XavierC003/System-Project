@@ -38,7 +38,7 @@ impl MemoryManager {
     }
 
     pub fn show_memory(&self) {
-        dump::dump(self);  // Call dump function from dump.rs
+        print!("{}", self.dump());  // Call dump function from dump.rs
     }
 
     // Find method that retrieves a block by ID

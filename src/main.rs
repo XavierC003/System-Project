@@ -5,20 +5,19 @@ use rust_template::memory_manager::memory_block::MemoryBlock; // Added for Memor
 use std::env;
 use std::process;
 
-
-
-
 fn main() {
-    let mut manager = MemoryManager::new(1024); // Create memory manager
+    // Create a new memory manager with 1024 bytes
+    let mut manager = MemoryManager::new(1024);
 
     // Get the file path from command-line arguments
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        eprintln!("Usage: cargo run <file_path.cmmd>");
+        eprintln!("Usage: cargo run -- <file_path.cmmd>");
         process::exit(1);
     }
     let file_path = &args[1];
 
+    // Ensure the file has the correct extension
     if !file_path.ends_with(".cmmd") {
         eprintln!("File must have a .cmmd extension");
         process::exit(1);
@@ -33,18 +32,19 @@ fn main() {
         }
     };
 
-    // Process commands from file
+    // Process each command from the file
     for command in file_parser.commands {
         match command.function() {
-            "insert" => {
+            "INSERT" => {
+                // INSERT [SIZE] [DATA...]
                 if let Some(size_str) = command.parameters().get(0) {
                     match size_str.parse::<usize>() {
                         Ok(size) => {
-                            let data: Vec<u8> = command.parameters()[1..]
-                                .iter()
-                                .filter_map(|s| s.parse::<u8>().ok())
-                                .collect();
-                            if let Some(id) = manager.insert(size, &data) {
+                            // Join the remaining parameters as data and convert to bytes
+                            let data = command.parameters()[1..].join(" ");
+                            let data_bytes = data.as_bytes();
+
+                            if let Some(id) = manager.insert(size, data_bytes) {
                                 println!("Inserted block with ID: {}", id);
                                 if let Some(block) = manager.get_block(id) {
                                     print_block_info(block);
@@ -53,14 +53,15 @@ fn main() {
                                 println!("Failed to insert block.");
                             }
                         }
-                        Err(_) => println!("Invalid size parameter for insert command."),
+                        Err(_) => println!("Invalid size parameter for INSERT."),
                     }
                 } else {
-                    println!("Missing size parameter for insert command.");
+                    println!("Missing size parameter for INSERT.");
                 }
             }
 
-            "delete" => {
+            "DELETE" => {
+                // DELETE [ID]
                 if let Some(id_str) = command.parameters().get(0) {
                     match id_str.parse::<usize>() {
                         Ok(id) => {
@@ -70,30 +71,55 @@ fn main() {
                                 println!("Block ID not found: {}", id);
                             }
                         }
-                        Err(_) => println!("Invalid block ID for delete command."),
+                        Err(_) => println!("Invalid block ID for DELETE."),
                     }
                 } else {
-                    println!("Missing block ID for delete command.");
+                    println!("Missing block ID for DELETE.");
                 }
             }
 
-            "read" => {
-                if let (Some(start_str), Some(len_str)) = (command.parameters().get(0), command.parameters().get(1)) {
-                    match (start_str.parse::<usize>(), len_str.parse::<usize>()) {
-                        (Ok(start), Ok(len)) => {
-                            match manager.read_range(start, len) {
-                                Some(bytes) => println!("Bytes from {}: {:?}", start, bytes),
-                                None => println!("Invalid index range: {} to {}", start, start + len),
+            "READ" => {
+                // READ [ID]
+                if let Some(id_str) = command.parameters().get(0) {
+                    match id_str.parse::<usize>() {
+                        Ok(id) => {
+                            if let Some(block) = manager.get_block(id) {
+                                let data = manager.read_range(block.get_start(), block.used_size);
+                                println!("Block {}: {:?}", id, data.unwrap_or_default());
+                            } else {
+                                println!("Nothing at [{}]", id);
                             }
                         }
-                        _ => println!("Invalid parameters for read command."),
+                        Err(_) => println!("Invalid ID for READ."),
                     }
                 } else {
-                    println!("Missing parameters for read command.");
+                    println!("Missing ID for READ.");
                 }
+            }
+
+            "UPDATE" => {
+                // UPDATE [ID] [NEW_DATA...]
+                if let Some(id_str) = command.parameters().get(0) {
+                    match id_str.parse::<usize>() {
+                        Ok(id) => {
+                            let data = command.parameters()[1..].join(" ");
+                            let data_bytes = data.as_bytes();
+                            MemoryManager::update(&mut manager, id, data_bytes);
+                        }
+                        Err(_) => println!("Invalid ID for UPDATE."),
+                    }
+                } else {
+                    println!("Missing ID for UPDATE.");
+                }
+            }
+
+            "DUMP" => {
+                // DUMP
+                print!("{}", manager.dump());
             }
 
             _ => {
+                // Unknown command fallback
                 println!("Unknown command: {}", command.function());
             }
         }

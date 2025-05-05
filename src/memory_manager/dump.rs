@@ -14,11 +14,12 @@ use super::{memory_block::MemoryBlock, MemoryManager};
 ///
 /// * A `String` containing the formatted memory dump, with one line per memory block.
 ///
-pub fn dump(manager: &MemoryManager) -> String {
+impl MemoryManager {
+pub fn dump(&self) -> String {
     let mut all_blocks: Vec<(usize, usize, String, Option<usize>)> = Vec::new();
 
     // Add allocated blocks
-    for block in &manager.allocated_handles {
+    for block in &self.allocated_handles {
         all_blocks.push((
             block.get_start(),
             block.get_size(),
@@ -28,7 +29,7 @@ pub fn dump(manager: &MemoryManager) -> String {
     }
 
     // Add free blocks
-    for block in &manager.free_handles {
+    for block in &self.free_handles {
         all_blocks.push((
             block.start,
             block.size,
@@ -58,4 +59,5 @@ pub fn dump(manager: &MemoryManager) -> String {
     }
 
     output
+}
 }

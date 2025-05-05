@@ -17,6 +17,7 @@ use super::MemoryManager;
 ///
 /// This function does not return a value. However, it performs the update or reallocation of the block based on the provided data.
 ///
+ impl MemoryManager {
 pub fn update(manager: &mut MemoryManager, id: usize, new_data: &[u8]) {
     if let Some(index) = manager.allocated_handles.iter().position(|b| b.id == id) {
         // Get the block from the allocated handles list
@@ -52,3 +53,4 @@ pub fn update(manager: &mut MemoryManager, id: usize, new_data: &[u8]) {
         println!("Nothing at [{}]", id);
     }
 }
+ }
