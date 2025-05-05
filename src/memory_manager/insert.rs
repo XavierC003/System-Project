@@ -1,7 +1,7 @@
 use super::{AllocatedBlock, FreeBlock, MemoryManager};
 
 impl MemoryManager {
-        /// Inserts a new block of memory into the memory manager.
+    /// Inserts a new block of memory into the memory manager.
     ///
     /// This function finds the best-fit free block that can hold the requested size,
     /// allocates a new `AllocatedBlock`, and copies the provided data into memory.
@@ -14,50 +14,58 @@ impl MemoryManager {
     ///
     /// # Returns
     ///
-    /// * `Some(String)` - The unique ID of the newly allocated block, if allocation succeeds.
+    /// * `Some(usize)` - The unique ID of the newly allocated block, if allocation succeeds.
     /// * `None` - If no suitable free block is found or the provided data exceeds the required size.
-    ///
     pub fn insert(&mut self, size: usize, data: &[u8]) -> Option<usize> {
         let required_size = size.next_power_of_two();
         let data_size = data.len();
-    
+
         if data_size > required_size {
             return None;
         }
-    
-        let best_fit_index = self.free_handles
-            .iter()
-            .enumerate()
-            .filter(|(_, b)| b.get_size() >= required_size)
-            .min_by_key(|(_, b)| b.get_size())
-            .map(|(i, _)| i);
-    
-        if let Some(index) = best_fit_index {
-            let free_block = self.free_handles.remove(index);
-            let id = self.next_id; // Use usize
-            self.next_id += 1;
-    
-            self.allocated_handles.push(AllocatedBlock::new(
-                free_block.get_start(),
-                required_size,
-                id,           // Pass as usize
-                size,
-            ));
-    
-            let len_to_copy = data.len().min(required_size);
-            self.data[free_block.get_start()..free_block.get_start() + len_to_copy]
-                .copy_from_slice(data);
-    
-            if free_block.get_size() > required_size {
-                self.free_handles.push(FreeBlock::new(
-                    free_block.get_start() + required_size,
-                    free_block.get_size() - required_size,
-                ));
+
+        // Sort free blocks to find smallest possible suitable buddy
+        self.free_handles.sort_by_key(|b| b.get_size());
+
+        let mut block_index = None;
+
+        // Find the smallest free block that can fit the required size
+        for (i, block) in self.free_handles.iter().enumerate() {
+            if block.get_size() >= required_size {
+                block_index = Some(i);
+                break;
             }
-    
-            Some(id) // Return usize
-        } else {
-            None
         }
+
+        let index = block_index?;
+
+        // Start splitting if necessary to reach the exact required size
+        let mut block = self.free_handles.remove(index);
+
+        while block.get_size() > required_size {
+            // Split the block in half
+            let half_size = block.get_size() / 2;
+            let buddy = FreeBlock::new(block.get_start() + half_size, half_size);
+            self.free_handles.push(buddy);
+            block = FreeBlock::new(block.get_start(), half_size);
+        }
+
+        // At this point, `block` is exactly the size we need
+        let id = self.next_id;
+        self.next_id += 1;
+
+        self.allocated_handles.push(AllocatedBlock::new(
+            block.get_start(),
+            block.get_size(),
+            id,
+            size,
+        ));
+
+        // Copy data into memory
+        let len_to_copy = data.len().min(required_size);
+        self.data[block.get_start()..block.get_start() + len_to_copy]
+            .copy_from_slice(data);
+
+        Some(id)
     }
 }

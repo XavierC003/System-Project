@@ -23,7 +23,7 @@ pub fn dump(&self) -> String {
         all_blocks.push((
             block.get_start(),
             block.get_size(),
-            "Allocated".to_string(),
+            "ALLOCATED".to_string(),
             Some(block.id),
         ));
     }
@@ -33,7 +33,7 @@ pub fn dump(&self) -> String {
         all_blocks.push((
             block.start,
             block.size,
-            "Free".to_string(),
+            "FREE".to_string(),
             None,
         ));
     }

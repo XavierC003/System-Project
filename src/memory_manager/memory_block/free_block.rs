@@ -32,8 +32,12 @@ impl FreeBlock {
     pub fn set_start(&mut self, new_start: usize) {
         self.start = new_start;
     }
-
+    pub fn is_buddy_of(&self, other: &FreeBlock) -> bool {
+        self.size == other.size && (self.start ^ other.start) == self.size
+    }
 }
+
+
     // Implementing the MemoryBlock trait for FreeBlock
     impl MemoryBlock for FreeBlock {
         fn get_start(&self) -> usize {
