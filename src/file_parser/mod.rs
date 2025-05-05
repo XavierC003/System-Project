@@ -21,7 +21,7 @@ impl FileParser {
             let parts: Vec<&str> = line.split_whitespace().collect();
 
             if !parts.is_empty() {
-                let function = parts[0].to_string();
+                let function = parts[0].to_uppercase();
                 let parameters = parts[1..].iter().map(|&s| s.to_string()).collect();
                 commands.push(command::Command::new(function, parameters));
             }
