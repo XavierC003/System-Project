@@ -18,39 +18,36 @@ impl MemoryManager {
     /// * `None` - If no suitable free block is found or the provided data exceeds the required size.
     pub fn insert(&mut self, size: usize, data: &[u8]) -> Option<usize> {
         let required_size = size.next_power_of_two();
-        let data_size = data.len();
 
-        if data_size > required_size {
+        // Reject if data is too big for the requested block
+        if data.len() > size {
             return None;
         }
 
-        // Sort free blocks to find smallest possible suitable buddy
+        // Sort free blocks by size to ensure best fit
         self.free_handles.sort_by_key(|b| b.get_size());
 
-        let mut block_index = None;
+        // Find the smallest free block that can fit the requested size
+        let index = self
+            .free_handles
+            .iter()
+            .position(|block| block.get_size() >= required_size)?;
 
-        // Find the smallest free block that can fit the required size
-        for (i, block) in self.free_handles.iter().enumerate() {
-            if block.get_size() >= required_size {
-                block_index = Some(i);
-                break;
-            }
-        }
-
-        let index = block_index?;
-
-        // Start splitting if necessary to reach the exact required size
+        // Remove the selected free block
         let mut block = self.free_handles.remove(index);
 
+        // Split block in halves until we get the exact size needed
         while block.get_size() > required_size {
-            // Split the block in half
             let half_size = block.get_size() / 2;
             let buddy = FreeBlock::new(block.get_start() + half_size, half_size);
             self.free_handles.push(buddy);
             block = FreeBlock::new(block.get_start(), half_size);
+
+            // Re-sort after inserting buddy to maintain order
+            self.free_handles.sort_by_key(|b| b.get_size());
         }
 
-        // At this point, `block` is exactly the size we need
+        // Allocate the block
         let id = self.next_id;
         self.next_id += 1;
 
@@ -62,8 +59,7 @@ impl MemoryManager {
         ));
 
         // Copy data into memory
-        let len_to_copy = data.len().min(required_size);
-        self.data[block.get_start()..block.get_start() + len_to_copy]
+        self.data[block.get_start()..block.get_start() + data.len()]
             .copy_from_slice(data);
 
         Some(id)

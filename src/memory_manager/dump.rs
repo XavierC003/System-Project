@@ -45,17 +45,23 @@ pub fn dump(&self) -> String {
     let mut output = String::new();
     for (start, size, status, id) in all_blocks {
         let end = start + size - 1;
-        let line = match id {
-            Some(id) => format!(
-                "Start: {:04X}, End: {:04X}, Size: {}, Status: {}, ID: {}\n",
-                start, end, size, status, id
-            ),
-            None => format!(
-                "Start: {:04X}, End: {:04X}, Size: {}, Status: {}\n",
-                start, end, size, status
-            ),
-        };
-        output.push_str(&line);
+
+        match id {
+            Some(id) => {
+                let data = &self.data[start..start + size];
+                output.push_str(&format!(
+                    "Start: {:04X}, End: {:04X}, Size: {}, Status: {}, ID: {}\n",
+                    start, end, size, status, id
+                ));
+                output.push_str(&format!("Data: {:?}\n", data));
+            }
+            None => {
+                output.push_str(&format!(
+                    "Start: {:04X}, End: {:04X}, Size: {}, Status: {}\n",
+                    start, end, size, status
+                ));
+            }
+        }
     }
 
     output
