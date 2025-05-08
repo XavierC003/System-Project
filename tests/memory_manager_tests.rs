@@ -58,8 +58,8 @@ fn test_dump_memory_state() {
     let dump_output = manager.dump();
     println!("Captured dump output: {}", dump_output);
 
-    assert!(dump_output.contains("Allocated"));
-    assert!(dump_output.contains("Free"));
+    assert!(dump_output.contains("ALLOCATED"));
+    assert!(dump_output.contains("FREE"));
 }
 
 #[test]
@@ -74,4 +74,21 @@ fn test_update_block() {
     let updated_data = manager.read_range(block.start, block.used_size).unwrap();
 
     assert_eq!(updated_data, vec![1, 2, 9, 9, 5]);
+}
+
+#[test]
+fn test_buddy_merge_on_delete() {
+    let mut manager = MemoryManager::new(65536);
+
+    let id1 = manager.insert(16, b"block_one").unwrap(); 
+    let id2 = manager.insert(16, b"block_two").unwrap();
+
+    assert!(manager.delete(id1));
+    assert!(manager.delete(id2));
+
+    let dump = manager.dump();
+    println!("{}", dump);
+
+    assert!(dump.contains("Size: 16"));
+    assert!(dump.contains("Status: FREE"));
 }

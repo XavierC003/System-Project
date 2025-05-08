@@ -1,6 +1,7 @@
-use crate::memory_manager::MemoryManager;
 use crate::memory_manager::memory_block::FreeBlock;
 use crate::memory_manager::memory_block::MemoryBlock;
+
+use super::MemoryManager;
 
 
 impl MemoryManager {
@@ -23,16 +24,26 @@ impl MemoryManager {
     pub fn delete(&mut self, id: usize) -> bool {
         if let Some(index) = self.allocated_handles.iter().position(|block| block.id == id) {
             let block = self.allocated_handles.remove(index);
+            let mut free_block = FreeBlock::new(block.get_start(), block.get_size());
             
-            println!("Deleted block with ID: {}", block.id);  // Debugging statement
+            loop {
+                // Try to find a buddy block
+                if let Some(buddy_index) = self.free_handles.iter().position(|b| b.is_buddy_of(&free_block)) {
+                    // Merge with buddy block
+                    let buddy = self.free_handles.remove(buddy_index);
+                    let merged_start = usize::min(free_block.get_start(), buddy.get_start());
+                    let merged_size = free_block.get_size() * 2;
+                    free_block = FreeBlock::new(merged_start, merged_size);
+
+                } else {
+                    self.free_handles.push(free_block);
+                    break;  // No more buddies to merge with
+                }
+            }
     
-            let free_block = FreeBlock::new(block.get_start(), block.get_size());
-            println!("FreeBlock created with start: {}, size: {}", free_block.get_start(), free_block.get_size());  // Debugging statement
-    
-            self.free_handles.push(free_block);
             true
         } else {
-            println!("Block ID not found for deletion: {}", id);  // Debugging statement
+            println!("Block ID not found for deletion: {}", id);
             false
         }
     }
