@@ -4,7 +4,7 @@ use rust_template::memory_manager::MemoryManager;
 
 #[test]
 fn test_insert_block() {
-    let mut manager = MemoryManager::new(65536);
+    let mut manager = MemoryManager::new(65535);
     let id = manager.insert(20, &[1, 2, 3]).unwrap();  // id is String
 
     // Ensure the id is being passed correctly
@@ -15,7 +15,7 @@ fn test_insert_block() {
 
 #[test]
 fn test_read_block() {
-    let mut manager = MemoryManager::new(65536);
+    let mut manager = MemoryManager::new(65535);
     let id = manager.insert(20, &[1, 2, 3]).unwrap();
 
     // Read the block using its ID
@@ -26,7 +26,7 @@ fn test_read_block() {
 
 #[test]
 fn test_delete_block() {
-    let mut manager = MemoryManager::new(65536);
+    let mut manager = MemoryManager::new(65535);
     let id = manager.insert(20, &[1, 2, 3]).unwrap();
 
     // Delete the block
@@ -40,7 +40,7 @@ fn test_delete_block() {
 
 #[test]
 fn test_find_block() {
-    let mut manager = MemoryManager::new(65536);
+    let mut manager = MemoryManager::new(65535);
     let id = manager.insert(20, &[1, 2, 3]).unwrap();
 
     // Find the block by its ID
@@ -52,7 +52,7 @@ fn test_find_block() {
 
 #[test]
 fn test_dump_memory_state() {
-    let mut manager = MemoryManager::new(65536);
+    let mut manager = MemoryManager::new(65535);
     manager.insert(20, &[1, 2, 3]);
 
     let dump_output = manager.dump();
@@ -64,7 +64,7 @@ fn test_dump_memory_state() {
 
 #[test]
 fn test_update_block() {
-    let mut manager = MemoryManager::new(65536);
+    let mut manager = MemoryManager::new(65535);
     let block_id = manager.insert(10, &[1, 2, 3, 4, 5]).unwrap();
 
     // Update the block
@@ -78,7 +78,7 @@ fn test_update_block() {
 
 #[test]
 fn test_buddy_merge_on_delete() {
-    let mut manager = MemoryManager::new(65536);
+    let mut manager = MemoryManager::new(65535);
 
     let id1 = manager.insert(16, b"block_one").unwrap(); 
     let id2 = manager.insert(16, b"block_two").unwrap();

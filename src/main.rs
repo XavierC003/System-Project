@@ -7,7 +7,7 @@ use std::process;
 
 fn main() {
     // Create a new memory manager with 1024 bytes
-    let mut manager = MemoryManager::new(1024);
+    let mut manager = MemoryManager::new(65535);
 
     // Get the file path from command-line arguments
     let args: Vec<String> = env::args().collect();

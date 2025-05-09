@@ -29,9 +29,11 @@ impl MemoryManager {
     ///
     /// A new `MemoryManager` instance with one free block covering the entire memory.
     pub fn new(size: usize) -> Self {
+        
+        let root_size = 2usize.pow((size as f64).log2().floor() as u32);
         Self {
             data: vec![0; size],
-            free_handles: vec![FreeBlock::new(0, size)],
+            free_handles: vec![FreeBlock::new(0, root_size)],
             allocated_handles: vec![],
             next_id: 0,
         }

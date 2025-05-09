@@ -20,7 +20,7 @@ impl MemoryManager {
         let required_size = size.next_power_of_two();
 
         // Reject if data is too big for the requested block
-        if data.len() > size {
+        if data.len() > required_size {
             return None;
         }
 
@@ -42,6 +42,7 @@ impl MemoryManager {
             let buddy = FreeBlock::new(block.get_start() + half_size, half_size);
             self.free_handles.push(buddy);
             block = FreeBlock::new(block.get_start(), half_size);
+            self.free_handles.sort_by_key(|b| b.get_size());
 
             // Re-sort after inserting buddy to maintain order
             self.free_handles.sort_by_key(|b| b.get_size());
@@ -51,11 +52,15 @@ impl MemoryManager {
         let id = self.next_id;
         self.next_id += 1;
 
+        assert!(block.get_size().is_power_of_two(), "Block size is not a power of two: {}", block.get_size());
+
+
+
         self.allocated_handles.push(AllocatedBlock::new(
             block.get_start(),
             block.get_size(),
             id,
-            size,
+            data.len(),
         ));
 
         // Copy data into memory
