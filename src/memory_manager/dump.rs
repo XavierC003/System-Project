@@ -47,23 +47,30 @@ pub fn dump(&self) -> String {
         let end = start + size - 1;
 
         match id {
-            Some(id) => {
-                let data = &self.data[start..start + size];
-                output.push_str(&format!(
-                    "Start: {:04X}, End: {:04X}, Size: {}, Status: {}, ID: {}\n",
-                    start, end, size, status, id
-                ));
-                output.push_str(&format!("Data: {:?}\n", data));
-            }
-            None => {
-                output.push_str(&format!(
-                    "Start: {:04X}, End: {:04X}, Size: {}, Status: {}\n",
-                    start, end, size, status
-                ));
-            }
+        Some(id) => {
+            // Allocated block: show in hex, compact, with ID and size
+            output.push_str(&format!(
+                "0x{:04X} - 0x{:04X} ALLOCATED (ID: {}) (Size: {} bytes)\n",
+                start, end, id, size
+            ));
+
+            // Optional: show first few bytes of data
+            let data = &self.data[start..start + size];
+            let shown = data.iter().take(16)  // show up to 16 bytes for cleanliness
+                .map(|b| format!("0x{:02X}", b))
+                .collect::<Vec<_>>()
+                .join(" ");
+            output.push_str(&format!("{}\n", shown));
+        }
+        None => {
+            // Free block: compact style in hex
+            output.push_str(&format!(
+                "0x{:04X} - 0x{:04X} {} (Size: {} bytes)\n",
+                start, end, status, size
+            ));
         }
     }
-
+}
     output
 }
 }
